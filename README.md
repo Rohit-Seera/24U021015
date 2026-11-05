@@ -63,22 +63,30 @@ The smoke run writes a toy checkpoint and validation history under `checkpoints/
 
 ## Colab
 
-Open `notebooks/Pose2Text_Colab.ipynb` in Colab. It starts with runtime/GPU checks, explains that data is not preloaded, runs synthetic smoke tests, and gives commands for checking, training, evaluating, and saving outputs. For real training, place or mount the extracted data and set `data_root` to its path. A practical first real-data experiment is to set `train_limit: 2000`, `batch_size: 32`, and train for a few epochs on a GPU; this is a subset experiment, not full-dataset training.
+Open [Pose2Text_Colab_Final (1).ipynb](notebooks/Pose2Text_Colab_Final%20(1).ipynb) in Google Colab. The notebook checks the runtime/GPU, mounts Google Drive, reuses the saved trained checkpoint and evaluation when available, and displays saved metrics and test predictions. The recorded runtime was Python 3.13.16, PyTorch 2.11.0+cu130, and a Tesla T4 GPU.
+
+The notebook's saved configuration records a 2,000-example training limit, 3 epochs, batch size 16, and the HumanML3D `new_joint_vecs` representation. The notebook detected an existing saved checkpoint and evaluation and skipped retraining/re-evaluation in that session. See the notebook outputs for the exact run state.
 
 ## Metrics and limitations
 
-Evaluation calculates BLEU-1 through BLEU-4 with NLTK sentence BLEU and smoothing, ROUGE-L with `rouge-score`, and METEOR with NLTK over all available full-sequence references. Tokenization is lowercase alphanumeric regex; scores are macro-averaged over test motions. If the NLTK WordNet data needed by METEOR is unavailable, its value is recorded as unavailable. BERTScore is reported as not run unless separately implemented with installed model dependencies; CIDEr is optional and currently not implemented. Metric scores are imperfect proxies for semantic correctness. No performance numbers are included until produced by a real evaluation run.
+Evaluation calculates BLEU-1 through BLEU-4 with NLTK sentence BLEU and smoothing, ROUGE-L with `rouge-score`, and METEOR with NLTK over all available full-sequence references. Tokenization is lowercase alphanumeric regex; scores are macro-averaged over test motions. If the NLTK WordNet data needed by METEOR is unavailable, its value is recorded as unavailable. BERTScore is reported as not run unless separately implemented with installed model dependencies; CIDEr is optional and currently not implemented. Metric scores are imperfect proxies for semantic correctness.
 
 The demo shows a model-generated caption only when a checkpoint exists, references from the selected test motion, and an illustrative feature trace. Skeleton rendering is available only for actual `(frames, joints, 3)` coordinate arrays; 263D feature vectors are not joint coordinates. Video upload and pose extraction are not supported.
 
 ## Reproducibility and results
 
-Random seeds are configurable (`seed`); checkpoint includes model, optimizer, epoch, vocabulary, and config. Generated metric files identify real HumanML3D evaluation. BERTScore's optional pretrained model download is not performed automatically. Data, model checkpoint, and dependency licenses remain governed by their respective owners.
+The following values are from the notebook's saved `results/metrics.json` and `results/model_comparison.csv`, for the HumanML3D test split (`4,384` examples). Scores are shown to four decimal places.
 
 | Model | BLEU-1 | BLEU-2 | BLEU-3 | BLEU-4 | ROUGE-L | METEOR |
 |---|---:|---:|---:|---:|---:|---:|
-| Transformer | — | — | — | — | — | — |
-| Majority caption | — | — | — | — | — | — |
-| Nearest motion | — | — | — | — | — | — |
+| **Transformer** | **0.5151** | **0.3668** | **0.2296** | **0.1523** | **0.4274** | 0.3473 |
+| Majority caption | 0.3080 | 0.2101 | 0.1086 | 0.0841 | 0.3551 | **0.6416** |
+| Nearest motion | 0.4570 | 0.2771 | 0.1631 | 0.1061 | 0.3886 | N/A |
 
-Values above are a template, not measured results. Future work: beam search, coordinate-aware skeleton visualization in the app, BERTScore/CIDEr integration, and richer motion encoders.
+**Reading the results:** The Transformer has the highest BLEU-1 through BLEU-4 and ROUGE-L among the three evaluated methods. The majority-caption baseline has the highest reported METEOR. Nearest-motion METEOR is unavailable (`null`) in the saved metrics file and is therefore shown as N/A, not zero.
+
+**Evaluation caveats:** These results represent the saved evaluation in the notebook; they should not be interpreted as a full-dataset training result. The notebook's saved configuration specifies `train_limit: 2000` and `epochs: 3`. Automatic caption metrics are imperfect proxies for semantic correctness. BERTScore was not run because its optional package/model weights were not installed or downloaded; CIDEr is not implemented.
+
+Random seeds are configurable (`seed`); checkpoint includes model, optimizer, epoch, vocabulary, and config. Data, model checkpoint, and dependency licenses remain governed by their respective owners.
+
+Future work: beam search, coordinate-aware skeleton visualization in the app, BERTScore/CIDEr integration, and richer motion encoders.
