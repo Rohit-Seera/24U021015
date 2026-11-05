@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Dataset
+data/HumanML3D/
+
+# Model checkpoints
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+
+# Results
+results/
+
+# Testing
+.pytest_cache/
+
+# System
+.DS_Store
+Thumbs.db
